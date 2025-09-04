@@ -27,6 +27,9 @@ public:
 // 구현입니다.
 
 	DECLARE_MESSAGE_MAP()
+
+private:
+	ULONG_PTR m_gdiplusToken;
 };
 
 extern CMFCImageAppApp theApp;

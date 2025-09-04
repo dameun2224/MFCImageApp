@@ -7,6 +7,9 @@
 #include "MFCImageApp.h"
 #include "MFCImageAppDlg.h"
 #include "afxdialogex.h"
+#include "Resource.h"
+#include <gdiplus.h>
+#pragma comment(lib, "Gdiplus.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -26,11 +29,13 @@ CMFCImageAppDlg::CMFCImageAppDlg(CWnd* pParent /*=nullptr*/)
 void CMFCImageAppDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_STATIC_IMAGE, m_pictureControl1);
 }
 
 BEGIN_MESSAGE_MAP(CMFCImageAppDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_UPLOAD, &CMFCImageAppDlg::OnClickedBtnUpload)
 END_MESSAGE_MAP()
 
 
@@ -86,3 +91,42 @@ HCURSOR CMFCImageAppDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CMFCImageAppDlg::OnClickedBtnUpload()
+{
+	// 파일 열기 대화 상자
+	CFileDialog dlg(TRUE, _T("*.png"), NULL, OFN_FILEMUSTEXIST | OFN_HIDEREADONLY, _T("Image Files (*.bmp;*.jpg;*.gif;*.png)|*.bmp;*.jpg;*.gif;*.png|All Files (*.*)|*.*||"), this);
+
+	// 사용자가 파일을 선택하고 [확인]을 누르면
+	if (dlg.DoModal() == IDOK)
+	{
+		CString strFilePath = dlg.GetPathName();
+
+		// GDI+를 사용해 이미지 로드
+		Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+		ULONG_PTR gdiplusToken;
+		Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+		Gdiplus::Bitmap* pBitmap = Gdiplus::Bitmap::FromFile(strFilePath);
+
+		if (pBitmap->GetLastStatus() == Gdiplus::Ok)
+		{
+			CImage image;
+			HBITMAP hBmp = NULL;
+			pBitmap->GetHBITMAP(NULL, &hBmp);
+			image.Attach(hBmp);
+
+			CRect rect;
+			m_pictureControl1.GetClientRect(&rect);
+
+			// Picture Control에 이미지 그리기
+			CClientDC dc(&m_pictureControl1);
+			image.StretchBlt(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), SRCCOPY);
+
+			image.Detach(); // CImage에서 HBITMAP을 분리하여 직접 관리
+		}
+
+		delete pBitmap;
+		Gdiplus::GdiplusShutdown(gdiplusToken);
+	}
+}

@@ -6,6 +6,9 @@
 #include "framework.h"
 #include "MFCImageApp.h"
 #include "MFCImageAppDlg.h"
+#include "Resource.h"
+#include <gdiplus.h>
+#pragma comment(lib, "Gdiplus.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -39,6 +42,9 @@ BOOL CMFCImageAppApp::InitInstance()
 {
 	CWinApp::InitInstance();
 
+	// GDI+ 시작
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
 	// 대화 상자에 셸 트리 뷰 또는
 	// 셸 목록 뷰 컨트롤이 포함되어 있는 경우 셸 관리자를 만듭니다.
@@ -84,6 +90,9 @@ BOOL CMFCImageAppApp::InitInstance()
 #if !defined(_AFXDLL) && !defined(_AFX_NO_MFC_CONTROLS_IN_DIALOGS)
 	ControlBarCleanUp();
 #endif
+
+	// GDI+ 종료
+	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 
 	// 대화 상자가 닫혔으므로 응용 프로그램의 메시지 펌프를 시작하지 않고 응용 프로그램을 끝낼 수 있도록 FALSE를
 	// 반환합니다.
