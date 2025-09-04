@@ -23,7 +23,6 @@ END_MESSAGE_MAP()
 
 
 // CMFCImageAppApp 생성
-
 CMFCImageAppApp::CMFCImageAppApp()
 {
 	// TODO: 여기에 생성 코드를 추가합니다.
